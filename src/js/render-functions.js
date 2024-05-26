@@ -1,40 +1,29 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-export function renderGallery(images) {
-  const gallery = document.getElementById('gallery');
-  gallery.innerHTML = '';
+const gallery = document.querySelector('.gallery');
 
-  images.forEach(image => {
-    const card = document.createElement('div');
-    card.classList.add('image-card');
+export function imgCreated(image) {
+  return `<li class="img-item">
+    <a class="img-link" href="${image.largeImageURL}">
+    <img class="image" src="${image.webformatURL}" alt="${image.tags}"></a>
+  <div class="img-info">
+    <p class="info"><b>Likes</b> ${image.likes}</p>
+    <p class="info"><b>Views</b> ${image.views}</p>
+    <p class="info"><b>Comments</b> ${image.comments}</p>
+    <p class="info"><b>Downloads</b> ${image.downloads}</p>
+  </div>
+    </li>`;
+}
 
-    card.innerHTML = `
-            <a href="${image.largeImageURL}">
-                <img src="${image.webformatURL}" alt="${image.tags}">
-            </a>
-            <div class="info">
-                <div>
-                    <span>Likes</span>
-                    <p>${image.likes}</p>
-                </div>
-                <div>
-                    <span>Views</span>
-                    <p>${image.views}</p>
-                </div>
-                <div>
-                    <span>Comments</span>
-                    <p>${image.comments}</p>
-                </div>
-                <div>
-                    <span>Downloads</span>
-                    <p>${image.downloads}</p>
-                </div>
-            </div>
-        `;
+export function imgTemplate(array) {
+  return array.map(imgCreated).join('');
+}
 
-    gallery.appendChild(card);
+export function imagesGallery() {
+  let newLightBox = new SimpleLightbox('gallery, a', {
+    captionsData: 'alt',
+    captionDelay: 250,
   });
-
-  new SimpleLightbox('#gallery a');
+  newLightBox.refresh();
 }

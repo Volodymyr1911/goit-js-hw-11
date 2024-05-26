@@ -1,38 +1,52 @@
-import { fetchImages } from './js/pixabay-api';
-import { renderGallery } from './js/render-functions.js';
+import { searchImg } from './js/pixabay-api';
+import { imgTemplate } from './js/render-functions';
+import { imagesGallery } from './js/render-functions';
+import { imgCreated } from './js/render-functions';
+
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-document.addEventListener('DOMContentLoaded', () => {
-  document
-    .getElementById('search-button')
-    .addEventListener('click', async () => {
-      const query = document.getElementById('search-input').value.trim();
+const form = document.querySelector('.form');
+const gallery = document.querySelector('.gallery');
+const loader = document.querySelector('.loader');
 
-      if (query === '') {
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  gallery.innerHTML = '';
+
+  showLoader();
+
+  const query = event.target.elements.query.value.trim();
+
+  searchImg(query)
+    .then(data => {
+      if (data.hits.length === 0) {
         iziToast.error({
-          title: 'Error',
-          message: 'Please enter a search query',
+          message: `Sorry, there are no images matching your search query.Please try again!`,
+          messageColor: '#FAFAFB',
+          color: '#EF4040',
+          position: 'topRight',
         });
         return;
+      } else {
+        const markup = imgTemplate(data.hits);
+        gallery.innerHTML = markup;
+        showLoader();
+        imagesGallery();
       }
+    })
 
-      try {
-        const data = await fetchImages(query);
-        if (data.hits.length === 0) {
-          iziToast.warning({
-            title: 'No results',
-            message:
-              'Sorry, there are no images matching your search query. Please try again!',
-          });
-        } else {
-          renderGallery(data.hits);
-        }
-      } catch (error) {
-        iziToast.error({
-          title: 'Error',
-          message: 'Failed to fetch images',
-        });
-      }
+    .catch(error => console.log(error))
+    .finally(() => {
+      event.target.reset();
+      hideLoader();
     });
 });
+
+function showLoader() {
+  loader.style.display = 'block';
+}
+
+function hideLoader() {
+  loader.style.display = 'none';
+}
